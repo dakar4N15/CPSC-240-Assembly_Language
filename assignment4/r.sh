@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Author: William Sutanto
-#Program name: Random Numbers
+#Program name: Benchmark
 
 rm *.o, *.lis, *.out
 echo " " #Blank line

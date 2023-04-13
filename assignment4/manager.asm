@@ -46,18 +46,18 @@
 ;
 ;Program information
 ;  Program name: Benchmark
-;  Programming languages: C, X86 assembly
+;  Programming languages: C++, X86 assembly
 ;  Date program began: 2023-April-10
 ;  Date of last update: 2023-April-12
 ;
 ;Purpose
 ;  This program will run a benchmark test on your device's CPU performance by running the square root instruction in SSE and 
-;  also the square root program in the standard C library. This program will first identify your CPU name, type, and max clock
-;  speed. Then, this program will prompt user for a float to be used for square root benchmarking, followed by the number of
-;  times the iteration should be performed. Next, this program will get the time on the clock in tics before the iteration starts, 
-;  iterate the sqrt instruction for the user's specified amount of times, and get the time on the clock in tics again after the
-;  iteration process finished. The elapsed time in tics will be displayed to the user, along with the time for one square root
-;  computation in tics and nano seconds.
+;  also the square root program in the standard C library. The main objective is to find how much time is required for a single
+;  sqrt instruction to execute. This program will first identify your CPU name, type, and max clock speed. Then, this program 
+;  will prompt user for a float to be used for square root benchmarking, followed by the number of times the iteration should 
+;  be performed. Next, this program will get the time on the clock in tics before the iteration starts, iterate the sqrt instruction 
+;  for the user's specified amount of times, and get the time on the clock in tics again after the iteration process finished. 
+;  The elapsed time in tics will be displayed to the user, along with the time for one square root computation in tics and nano seconds.
 ;
 ;Project information
 ;  Project files: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
@@ -345,6 +345,6 @@ pop rdi                                                     ;Restore rdi
 pop rbp                                                     ;Restore rbp
 
 ret
-;========== End of program executive.asm =================================================================================================================================
+;========== End of program manager.asm =================================================================================================================================
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3=========4=========5=========6=========7**
 

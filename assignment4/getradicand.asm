@@ -1,9 +1,9 @@
 ;***************************************************************************************************************************
-;Program name: "Arrays".  This program will prompt user to enter floats and store it into an array and calculate the        *   
-;magnitude of that array. There will be 2 sets of arrays, so the program will repeat similar steps twice and at the end     *
-;both arrays will be appended into a separate array and the magnitude of that array will be calculated as well. The magnitude*
-;of the combined array will be returned to main. Main and display_array is implemented in c, and the rest is implemented    *
-;in X86. Copyright (C) 2023  William Sutanto                                                                                *
+;Program name: "Benchmark". This program is coded in a combination of c++ as the main file and assembly for the manager,    *
+;getradicand and get_clock_freq modules, including one bash file. The purpose of this program is to benchmark the           *
+;performance of your device's CPU upon running the square root instruction in SSE and also the square root program in the   *
+;standard C library.
+;Copyright (C) 2023  William Sutanto                                                                                        *
 ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License  *
 ;version 3 as published by the Free Software Foundation.                                                                    *
 ;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied         *
@@ -20,25 +20,23 @@
 ;  Author email: wsutanto@csu.fullerton.edu
 ;
 ;Program information
-;  Program name: Arrays
-;  Programming languages: C, X86 assembly
-;  Date program began: 2023-Feb-12
-;  Date of last update: 2023-Feb-20
-;  Comments reorganized: 2023-Feb-20
-;  Files in the program: main.c, manager.asm, display_array.c, magnitude.asm, append.asm, input_array.asm, isfloat.asm r.sh
+;  Program name: Benchmark
+;  Programming languages: C++, X86 assembly
+;  Date program began: 2023-April-10
+;  Date of last update: 2023-April-12
+;  Comments reorganized: 2023-April-12
+;  Files in the program: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
 ;
 ;Purpose
-;  Build a program in assembly language that will take in floats from user and store it into an array. This program will repeat the steps twice
-;  so that there will be 2 arrays and the magnitude of each array will be calculated. At the end, the 2 arrays will be combined into an array
-;  and the magnitude of that array will be calculated and returned to main.
+;  This asm module prompts user to enter a floating radicand number and extracts it. The float will be returned in xmm0
 ;
 ;This file
-;  File name: append.asm
+;  File name: getradicand.asm
 ;  Language: X86-64
 ;  Syntax: Intel
 ;  Max page width: 172 columns
 ;  Optimal print specification: Landscape, 7-point font, monospace, 172 columns, 8½x11 paper
-;  Assemble: nasm -f elf64 -l append.lis -o append.o append.asm
+;  Assemble: nasm -f elf64 -l getradicand.lis -o getradicand.o getradicand.asm
 ;
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3=========4=========5=========6=========7**
 ;
@@ -47,27 +45,30 @@
 ;  Author email: wsutanto@csu.fullerton.edu
 ;
 ;Program information
-;  Program name: Arrays
-;  Programming languages: X86, C
-;  Date program began: 2023-Feb-12
-;  Date of last update: 2023-Feb-20
+;  Program name: Benchmark
+;  Programming languages: C++, X86 assembly
+;  Date program began: 2023-April-10
+;  Date of last update: 2023-April-12
 ;
 ;Purpose
-;   Build a program in assembly language that will take in floats from user and store it into an array. This program will repeat the steps twice
-;  so that there will be 2 arrays and the magnitude of each array will be calculated. At the end, the 2 arrays will be combined into an array
-;  and the magnitude of that array will be calculated and returned to main.
+;  This program will run a benchmark test on your device's CPU performance by running the square root instruction in SSE and 
+;  also the square root program in the standard C library. The main objective is to find how much time is required for a single
+;  sqrt instruction to execute. This program will first identify your CPU name, type, and max clock speed. Then, this program 
+;  will prompt user for a float to be used for square root benchmarking, followed by the number of times the iteration should 
+;  be performed. Next, this program will get the time on the clock in tics before the iteration starts, iterate the sqrt instruction 
+;  for the user's specified amount of times, and get the time on the clock in tics again after the iteration process finished. 
+;  The elapsed time in tics will be displayed to the user, along with the time for one square root computation in tics and nano seconds.
 ;
 ;Project information
-;  Project files: main.c, manager.asm, display_array.c, magnitude.asm, append.asm, input_array.asm, isfloat.asm, r.sh
+;  Project files: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
 ;  Status: Available for public review.
 ;
 ;Translator information
-;  Linux: nasm -f elf64 -l append.lis -o append.o append.asm
+;  Compile this file: nasm -f elf64 -l getradicand.lis -o getradicand.o getradicand.asm
+;  Link the project files: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o get_clock_freq.o getradicand.o
 ;
 ;References and credits
-;   Professor Floyd Holliday's website for isfloat.asm module 
-;   https://sites.google.com/a/fullerton.edu/activeprofessor/4-subjects/x86-programming/library-software/isfloat-x86-only
-;  
+;
 ;
 ;Format information
 ;  Page width: 172 columns
@@ -80,13 +81,15 @@
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3=========4=========5=========6=========7**
 ;
 ;===== Begin code area ====================================================================================================================================================
-extern printf
-extern scanf
-global getradicand
+extern printf           ;external C++ function to print to console
+extern scanf            ;external C++ function to read input from console
+
+global getradicand      
 
 segment .data       ;Place initialized data here
 ;========== message to be printed to user =================================================================================================================================
 promptRadicand db 10,"Please enter a floating radicand for square root bench marking: ",0      ;prompt user for float to be used for square root benchmarking
+
 one_float_format db "%lf",0
 
 segment .bss
@@ -115,24 +118,25 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-push qword 0
+push qword 0                    ;push to remain on the boundary
+
 ;========== Output prompt to ask user to input float ===================================================================================================================
-push qword 0
-mov rax, 0
-mov rdi, promptRadicand
-call printf
-pop rax
+push qword 0                    ;Push 8 bytes to get onto an 16-byte boundary
+mov rax, 0                      ;no data from SSE will be printed i.e. 0 xmm registers used
+mov rdi, promptRadicand         ;"Please enter a floating radicand for square root bench marking: "
+call printf                     ;call external C++ print function
+pop rax                         ;remove earlier push
 
 ;========== Extract user input using scanf =============================================================================================================================
-push qword 0
-mov rax, 1
-mov rdi, one_float_format
-mov rsi, rsp
-call scanf
-movsd xmm0, [rsp]
-pop rax
+push qword 0                    ;Push 8 bytes to get onto an 16-byte boundary
+mov rax, 1                      ;1 xmm register will be printed in this section
+mov rdi, one_float_format       ;"%lf"
+mov rsi, rsp                    ;point scanf to the reserved storage
+call scanf                      ;call external C++ function to extract user input
+movsd xmm0, [rsp]               ;move the float entered by user to xmm0
+pop rax                         ;remove earlier push
 
-pop rax
+pop rax                         ;counter push at the beginning of program
 ;===== Restore original values to integer registers ====================================================================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
@@ -151,5 +155,5 @@ pop rdi                                                     ;Restore rdi
 pop rbp                                                     ;Restore rbp
 
 ret
-;========== End of program pythagoras.asm =================================================================================================================================
+;========== End of program getradicand.asm =================================================================================================================================
 ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3=========4=========5=========6=========7**
