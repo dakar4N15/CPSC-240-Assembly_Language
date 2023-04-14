@@ -1,6 +1,6 @@
 ;***************************************************************************************************************************
 ;Program name: "Benchmark". This program is coded in a combination of c++ as the main file and assembly for the manager,    *
-;getradicand and get_clock_freq modules, including one bash file. The purpose of this program is to benchmark the           *
+;and getradicand modules, including one bash file. The purpose of this program is to benchmark the                          *
 ;performance of your device's CPU upon running the square root instruction in SSE and also the square root program in the   *
 ;standard C library.
 ;Copyright (C) 2023  William Sutanto                                                                                        *
@@ -23,9 +23,9 @@
 ;  Program name: Benchmark
 ;  Programming languages: C++, X86 assembly
 ;  Date program began: 2023-April-10
-;  Date of last update: 2023-April-12
-;  Comments reorganized: 2023-April-12
-;  Files in the program: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
+;  Date of last update: 2023-April-14
+;  Comments reorganized: 2023-April-14
+;  Files in the program: main.cpp, manager.asm, getradicand.asm, r.sh
 ;
 ;Purpose
 ;  This asm module prompts user to enter a floating radicand number and extracts it. The float will be returned in xmm0
@@ -48,7 +48,7 @@
 ;  Program name: Benchmark
 ;  Programming languages: C++, X86 assembly
 ;  Date program began: 2023-April-10
-;  Date of last update: 2023-April-12
+;  Date of last update: 2023-April-14
 ;
 ;Purpose
 ;  This program will run a benchmark test on your device's CPU performance by running the square root instruction in SSE and 
@@ -60,12 +60,12 @@
 ;  The elapsed time in tics will be displayed to the user, along with the time for one square root computation in tics and nano seconds.
 ;
 ;Project information
-;  Project files: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
+;  Project files: main.cpp, manager.asm, getradicand.asm, r.sh
 ;  Status: Available for public review.
 ;
 ;Translator information
 ;  Compile this file: nasm -f elf64 -l getradicand.lis -o getradicand.o getradicand.asm
-;  Link the project files: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o get_clock_freq.o getradicand.o
+;  Link the project files: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o getradicand.o
 ;
 ;References and credits
 ;

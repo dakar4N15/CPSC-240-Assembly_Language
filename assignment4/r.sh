@@ -12,14 +12,11 @@ g++ -c -m64 -Wall -std=c++14 -fno-pie -no-pie -o main.o main.cpp
 echo "Compile manager.asm"
 nasm -f elf64 -l manager.lis -o manager.o manager.asm
 
-echo "Compile get_clock_freq.asm"
-nasm -f elf64 -l get_clock_freq.lis -o get_clock_freq.o get_clock_freq.asm
-
 echo "Compile getradicand.asm"
 nasm -f elf64 -l getradicand.lis -o getradicand.o getradicand.asm
 
 echo "Link object files using the gcc linker standard 2017"
-g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o get_clock_freq.o getradicand.o
+g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o getradicand.o
 
 echo "Run the program:"
 ./final.out

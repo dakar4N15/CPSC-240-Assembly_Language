@@ -1,6 +1,6 @@
 ;***************************************************************************************************************************
 ;Program name: "Benchmark". This program is coded in a combination of c++ as the main file and assembly for the manager,    *
-;getradicand and get_clock_freq modules, including one bash file. The purpose of this program is to benchmark the           *
+;and getradicand modules, including one bash file. The purpose of this program is to benchmark the                          *
 ;performance of your device's CPU upon running the square root instruction in SSE and also the square root program in the   *
 ;standard C library.
 ;Copyright (C) 2023  William Sutanto                                                                                        *
@@ -23,9 +23,9 @@
 ;  Program name: Benchmark
 ;  Programming languages: C++, X86 assembly
 ;  Date program began: 2023-April-10
-;  Date of last update: 2023-April-12
-;  Comments reorganized: 2023-April-12
-;  Files in the program: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
+;  Date of last update: 2023-April-14
+;  Comments reorganized: 2023-April-14
+;  Files in the program: main.cpp, manager.asm, getradicand.asm, r.sh
 ;
 ;Purpose
 ;  This file is the main assembly caller file. This file mainly calls other functions necessary to run the program
@@ -48,7 +48,7 @@
 ;  Program name: Benchmark
 ;  Programming languages: C++, X86 assembly
 ;  Date program began: 2023-April-10
-;  Date of last update: 2023-April-12
+;  Date of last update: 2023-April-14
 ;
 ;Purpose
 ;  This program will run a benchmark test on your device's CPU performance by running the square root instruction in SSE and 
@@ -60,12 +60,12 @@
 ;  The elapsed time in tics will be displayed to the user, along with the time for one square root computation in tics and nano seconds.
 ;
 ;Project information
-;  Project files: main.cpp, manager.asm, get_clock_freq.asm, getradicand.asm, r.sh
+;  Project files: main.cpp, manager.asm, getradicand.asm, r.sh
 ;  Status: Available for public review.
 ;
 ;Translator information
 ;  Compile this file: nasm -f elf64 -l manager.lis -o manager.o manager.asm
-;  Link the project files: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o get_clock_freq.o getradicand.o
+;  Link the project files: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o getradicand.o
 ;
 ;References and credits
 ;
@@ -84,7 +84,6 @@
 ; Declare external C++ functions & make funct 'executive' visible to other languages & create constant
 extern printf               ;external C++ function to print to console
 extern scanf                ;external C++ function to read input from console
-extern getfreq              ;asm module to get the CPU max clock speed
 extern getradicand          ;asm module to obtain a floating radicand from user
 extern atoi                 ;external C++ function that converts string to integer
 
@@ -103,7 +102,9 @@ benchmarkStart db 10,"The bench mark of the sqrtsd instruction is in progress. "
 displayTicsEnd db 10,"The time on the clock is %llu tics and the benchmark is completed.",10,0      ;Display tics at the end of benchmark
 displayElapsed db 10,"The elapsed time was %llu tics",10,0                                          ;display the elapsed tics
 result db 10,"The time for one square root computation is %.5lf tics which equals %.5lf ns.",10,0   ;display results 
+promptspeed db 10,"Enter your max clock speed in MHz: ",0                                           ;prompt user to enter max clock speed
 
+one_float_format db "%lf",0
 string_format db "%s", 0   ;Format indicating a null-terminated string, c-string
 
 segment .bss
@@ -186,14 +187,21 @@ call printf                 ;call external C++ function
 pop rax                     ;remove earlier push
 
 ;========== Get Max clock speed and display to user using printf==========================================================================================================
-call getfreq                ;call getfreq asm module to obtain CPU max clock speed
-movsd xmm15, xmm0           ;store the cpu max clock speed in GHz in xmm15 
+;prompt user for max clock speed
+push qword 0                ;Push 8 bytes to get onto an 16-byte boundary
+mov rax, 0                  ;no data from SSE will be printed i.e. 0 xmm registers used
+mov rdi, promptspeed        ;promptspeed db 10,"Enter your max clock speed in MHz: ",0   
+call printf                 ;call external C++ print function
+pop rax                     ;remove earlier push
 
-;convert max clock speed from GHZ to MHZ
-mov rax, 1000               ;rax now store the value of 1000
-cvtsi2sd xmm1, rax          ;convert 1000 int stored in rax to float that will be stored in xmm1
-movsd xmm14, xmm15          ;xmm14 now stores a copy of cpu max clock speed
-mulsd xmm14, xmm1           ;xmm14 now stores a copy of cpu max clock speed in MHz
+;get max clock speed using scanf
+push qword 0                ;Push 8 bytes to get onto an 16-byte boundary
+mov rax, 0                  ;no data from SSE will be printed i.e. 0 xmm registers used
+mov rdi, one_float_format   ;"%lf"
+mov rsi, rsp                ;point scanf to the reserved memory
+call scanf                  ;call external C++ scanf function to extract input from user
+movsd xmm14, xmm0           ;move the value entered to xmm14. xmm14 now stores the max clock speed in MHz
+pop rax                     ;remove earlier push
 
 ;output to user
 push qword 0                ;Push 8 bytes to get onto an 16-byte boundary
@@ -312,8 +320,13 @@ cvtsi2sd xmm10, r14     ;xmm10 now stores a copy of elapsed time
 cvtsi2sd xmm11, r15     ;xmm11 now stores a copy of number of iteration times
 divsd xmm10, xmm11      ;divide elapsed time in tics with number of iteration times to get time for one square root computation in tics
 
+;convert max clock speed from MHz to GHz
+mov rax, 1000           ;rax now store the value of 1000
+cvtsi2sd xmm1, rax      ;convert 1000 int stored in rax to float that will be stored in xmm1
+divsd xmm14, xmm1       ;xmm14 now stores a copy of cpu max clock speed in GHz
+
 movsd xmm13, xmm10      ;xmm13 now stores a copy of time for one square root computation in tics
-divsd xmm13, xmm15      ;divide time in tics with cpu max clock freq in GHz to obtain benchmark in ns. xmm13 now stores the benchmark in ns
+divsd xmm13, xmm14      ;divide time in tics with cpu max clock freq in GHz to obtain benchmark in ns. xmm13 now stores the benchmark in ns
 
 ;========== Display results to user =================================================================================================================================
 push qword 0            ;Push 8 bytes to get onto an 16-byte boundary

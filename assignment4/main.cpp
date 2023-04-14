@@ -1,6 +1,6 @@
 //***************************************************************************************************************************
 //Program name: "Benchmark". This program is coded in a combination of c++ as the main file and assembly for the manager,    *
-//getradicand and get_clock_freq modules, including one bash file. The purpose of this program is to benchmark the           *
+//and getradicand modules, including one bash file. The purpose of this program is to benchmark the                          *
 //performance of your device's CPU upon running the square root instruction in SSE and also the square root program in the   *
 //standard C library.
 //Copyright (C) 2023  William Sutanto                                                                                        *
@@ -20,8 +20,8 @@
 //  Program name: Benchmark
 //  Programming languages: Main in C++, manager in asm, getradicand in asm, get_clock_freq in asm
 //  Date program began: 2023-April-10
-//  Date of last update: 2023-April-12
-//  Comments reorganized: 2023-April-12
+//  Date of last update: 2023-April-14
+//  Comments reorganized: 2023-April-14
 //  Files in the program: main.cpp, get_clock_freq.asm, getradicand.asm, manager.asm, r.sh
 //
 //Purpose
@@ -39,7 +39,7 @@
 //  Max page width: 172 columns
 //  Optimal print specification: 7 point font, monospace, 172 columns, 8½x11 paper
 //  Compile: g++ -c -m64 -Wall -std=c++14 -fno-pie -no-pie -o main.o main.cpp
-//  Link: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o get_clock_freq.o getradicand.o
+//  Link: g++ -m64 -std=c++17 -fno-pie -no-pie -o final.out main.o manager.o getradicand.o
 //
 //Execution: ./final.out
 //
