@@ -359,7 +359,7 @@ cpuid                       ;get cpu info
 rdtsc                       ;read the currrent value of the processor's time-stamp counter
 shl rdx, 32                 ;shift left rdx register by 32
 add rdx, rax                ;add rdx with rax and store the value in rdx
-mov r13, rdx                ;number of tics at start is stored in r13
+mov r12, rdx                ;number of tics at start is stored in r12
 
 ;========== Call the sin library function ================================================================================================================================
 push qword 0                ;Push 8 bytes to get onto an 16-byte boundary
@@ -376,22 +376,22 @@ cpuid                       ;get cpu info
 rdtsc                       ;read the currrent value of the processor's time-stamp counter
 shl rdx, 32                 ;shift left rdx register by 32
 add rdx, rax                ;add rdx with rax and store the value in rdx
-mov r14, rdx                ;number of tics at end is stored in r14
+mov r13, rdx                ;number of tics at end is stored in r13
 
 ;========== Calculate elapsed tics ==================================================================================================================================
-sub r14, r13                ;elapsed tics is stored in r14
+sub r13, r12                ;elapsed tics is stored in r13
 
 ;========== Output the elapsed tics and result from the sin function =======================================================================================
 push qword 0                ;Push 8 bytes to get onto an 16-byte boundary
 mov rax, 1                  ;1xmm register will be printed in this section
 mov rdi, result2            ;"The computation completed in %llu tics and gave the value %.9lf"
-mov rsi, r14                ;move elapsed tics to rsi
+mov rsi, r13                ;move elapsed tics to rsi
 movsd xmm0, xmm9            ;move the value returned by sin library function stored in xmm9 to xmm0
 call printf                 ;call the external C++ print function
 pop rax                     ;remove earlier push
 
-movsd xmm0, xmm9            ;return the result from sin calculation to driver
 pop rax
+mov rax, r14                 ;return the elapsed tics from Taylor series to driver.
 
 ;===== Restore original values to integer registers ====================================================================================================================
 popf                                                        ;Restore rflags

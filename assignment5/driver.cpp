@@ -53,7 +53,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-extern "C" double manager();           // Declare the external ASM function using the "C" directive to pass parameters in the CCC standard
+extern "C" long long unsigned int manager();           // Declare the external ASM function using the "C" directive to pass parameters in the CCC standard
 
 int main(int argc, char* argv[])
 {
@@ -61,11 +61,11 @@ int main(int argc, char* argv[])
   printf("Welcome to Asterix Software Development Corporation\n");
 
   // call the asm file and store the value returned from it
-  double a = manager();
+  long long unsigned int a = manager();
 
-  //output the time of computation in nanoseconds and end message to console
+  //output the time of computation in tics and end message to console
   printf("\nThank you for using this program.  Have a great day.\n");
-  printf("\nThe driver program received this number %.12lf. A zero will be returned to the OS.  Bye.\n", a);
+  printf("\nThe driver program received this number %llu. A zero will be returned to the OS.  Bye.\n", a);
 
   return 0;
 }
